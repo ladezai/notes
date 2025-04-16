@@ -4,22 +4,28 @@
 
 This is very informative, but the key idea is just to remember the general
 structure of a LSTM:
-$$C_t = C_{t-1} \odot \sigma(T_1 [h_{t-1}; x_t]) + \sigma(T_2 [h_{t-1}; x_t])
-\odot \tanh(T_3[h_{t-1}; x_t])$$
-$$h_{t} = \sigma(T_4 [h_{t-1}; x_t]) \odot \tanh(C_t)$$
+
+```math
+C_t = C_{t-1} \odot \sigma(T_1 [h_{t-1}; x_t]) + \sigma(T_2 [h_{t-1}; x_t])
+\odot \tanh(T_3[h_{t-1}; x_t])
+```
+
+```math
+h_{t} = \sigma(T_4 [h_{t-1}; x_t]) \odot \tanh(C_t)
+```
+
 in which $C_t$ is the long term memory, whereas $h_t$ is the output and
 short-term memory and $T_i$ are affine transformations. 
 
-### [A simple neural network module for relational reasoning](https://arxiv.org/abs/1706.01427v1)
-
-Pretty similar idea to Neural Message Passing for Quantum Chemistry, but less
-general that that.
 
 ### [On Lazy Training in Differentiable Programming](https://arxiv.org/abs/1812.07956)
 
 The idea is that in case of over-parametrized model, the weights don't really
 change much (mainly by curse of dimensionality and the fact that little
-variations in the weights corresponds to large effects like a snowball effect). Hence, the neural network through training could be considered as a linear approximation around the initialization. In [On the (non-) robustness of two-layer neural networks in different learning regimes](https://arxiv.org/abs/2203.11864), they also provide that an initialization whose output is $0$ is necessary to have a robust model in this ''lazy-training'' regime.
+variations in the weights corresponds to large effects like a snowball effect). Hence, the neural network through
+training could be considered as a linear approximation around the initialization. In [On the (non-) robustness of
+two-layer neural networks in different learning regimes](https://arxiv.org/abs/2203.11864), they also provide that an
+initialization whose output is $0$ is necessary to have a robust model in this ''lazy-training'' regime.
 
 ### [Neural Message Passing for Quantum Chemistry](https://arxiv.org/abs/1704.01212v2)
 
@@ -28,12 +34,21 @@ RNN, that expands on the ideas of [A simple neural network module for relational
 reasoning](https://arxiv.org/abs/1706.01427v1) and other papers. The idea is
 explained at page 3, they describe a network in which the functionals $M_t$ and
 $U_t$ are trainable and describe on a graph $G$ for $t \in \{0, \dots, T\}$
-time-steps the following algorithm: $$m^{t+1}_v = \sum_{w \in N(v)} M_t(h^t_v,
-h^t_w, e_{vw})$$ $$h^{t+1}_v = U_t(h^t_v, m^{t+1}_v)$$
+time-steps the following algorithm: 
+```math
+m^{t+1}_v = \sum_{w \in N(v)} M_t(h^t_v, h^t_w, e_{vw})
+```
+
+```math 
+h^{t+1}_v = U_t(h^t_v, m^{t+1}_v)
+```
 In this case $N(v)$ represent the neighbors of each vertex $v$ and $e_{vw}$
 describes a certain edge feature between the nodes $v, w$. The output of the
 network is then read through a function $g$ (which could be parametrised), 
-$$\hat{y} = g(\{h_v^T \mid v \in G\})$$. 
+```math
+\hat{y} = g(\{h_v^T \mid v \in G\}).
+```
+
 
 Simple remarks and little examples may be required to fully capture the idea:
 suppose the data is composed by words in a sentence, like "It rains, therefore I
@@ -64,13 +79,12 @@ outputs $h_k^t$ $(N-k)$-times, which is kinda wasteful.
 
 ---
 
-### [Neural machine translation by jointly learning to align and translate](https://arxiv.org/abs/1409.0473v7)
+---
 
-TODO: read it more carefully
-They propose a bidirectional RNN architecture... which idk why it should be
-meaningful: they analyze a sequence from the start to the end and
-simultaneously from the end to the beginning. This kinds of remind me the
-Feynman-Kac formula, basically we can simulate backwards a PDE using an SDE.
+**Note**
+Pretty similar ideas to [A simple neural network module for relational reasoning](https://arxiv.org/abs/1706.01427v1)
+
+---
 
 ### [RECURRENT NEURAL NETWORK REGULARIZATION](https://arxiv.org/abs/1409.2329v5)
 
@@ -83,7 +97,9 @@ principle of not ''corrupting'' the long-term relations, could be applied to
 residual steps or short-cut connections: do not apply dropouts to the ''skip''
 but only to the ''message modificator'' network.
 To be more precise, the functional $F$ may use dropouts to enhance stability, 
-$$h_{t+1} = G(h_{t}) + F(h_t)$$
+```math
+h_{t+1} = G(h_{t}) + F(h_t)
+```
 but $G$ should be just a simple passing information on $h_t$, as it was
 described in [Identity Mappings in Deep Residual
 Networks](https://arxiv.org/abs/1603.05027), $G(h_t) \approx h_t$ for optimal
@@ -124,8 +140,10 @@ The idea is the following:
    (because the data $x_t,x_0$ are known and try to learn the mean parameter and
 the variance parameter for each time $t$. 
 That's it, that's the magic of the diffusion model. How to learn the model that finds the optimal parameters $\mu_t$ is quite straightforward: start from the KL divergence between the distribution $p_{\theta,t}$ (the distribution parametrized by the neural network that should denoise the image) and optimize it against the distribution $q_{t\mid x_0}$ which adds the noise to the initial image. Because $q_{t\mid x_0} \sim N(0, I)$ when $t \to \infty$ and fixed $x_0$ is basically a normal distribution, we obtain a quite simple loss function (up to some scaling constant and translations), 
-$$ L_t = \mathbb{E}_{x_0 \sim q, z\sim N(0,I)}[\| \varepsilon_{\theta}(x_t,t) -
-z\|^2], \quad \forall t \le T,$$
+
+```math 
+L_t = \mathbb{E}_{x_0 \sim q, z\sim N(0,I)}[\| \varepsilon_{\theta}(x_t,t) - z\|^2], \quad \forall t \le T,
+```
 with $\varepsilon_{\theta}(x_t,t)$ being a sample from the distribution
 $N(\mu_\theta(x_t, t), \sigma^2_{t,\theta} I)$
 
@@ -149,18 +167,20 @@ details: Short-Time Fourier Transform (STFT), Backward Attention Memory models
 
 They state the attention mechanism as 
 
-\[
+```math
 \text{attention}_M(Q, K, V) = AV, \quad A= \textrm{softmax}\left( M
 \frac{QK^\top}{\sqrt{d}}\right).
-\]
+```
 
 They define the Backward Attention Memory models (BAM) which is basically the
 attention mechanism with a 'counter-causal' mask $\tilde{M}$, i.e. $M_{ij} = 1$
 iff $i < j$, 
 
-\[ \textrm{BAM}(\omega) =
+```math
+\textrm{BAM}(\omega) =
 \textrm{linear}(\textrm{attention}_{\tilde{M}}(K_{\Omega}, V_{\Omega},
-Q_{\Omega})).\]
+Q_{\Omega})).
+```
 
 The goal is that BAM wants to know the influence of the previous
 tokens on the next, we don't want to predict the next token given the next. The
