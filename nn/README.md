@@ -148,7 +148,7 @@ details: Short-Time Fourier Transform (STFT), Backward Attention Memory models
 (BAM).
 
 They state the attention mechanism as 
-$$\text{attention_M(Q, K, V) = AV, \quad A= \textrm{softmax}\left( M
+$$\text{attention}_M(Q, K, V) = AV, \quad A= \textrm{softmax}\left( M
 \frac{QK^\top}{\sqrt{d}}\right).$$
 They define the Backward Attention Memory models (BAM) which is basically the
 attention mechanism with a 'counter-causal' mask $\tilde{M}$, i.e. $M_{ij} = 1$
